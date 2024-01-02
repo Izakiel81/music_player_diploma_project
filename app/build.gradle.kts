@@ -4,7 +4,7 @@ plugins {
 
 android {
     namespace = "izakiel81.develop.music_player_diploma"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "izakiel81.develop.music_player_diploma"
