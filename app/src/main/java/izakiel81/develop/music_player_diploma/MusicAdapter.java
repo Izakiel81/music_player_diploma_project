@@ -1,6 +1,7 @@
 package izakiel81.develop.music_player_diploma;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,7 +35,7 @@ public class MusicAdapter extends RecyclerView.Adapter<MusicAdapter.MusicViewHol
 
     @Override
     public void onBindViewHolder(@NonNull MusicViewHolder holder, int position) {
-
+        holder.textViewFileName.setText(list.get(position));
     }
 
     @Override

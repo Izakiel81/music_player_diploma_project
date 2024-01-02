@@ -22,17 +22,16 @@ public class FileReader {
             File mainFile = new File(MEDIA_PATH);
             File[] fileList = mainFile.listFiles();
 
-            Log.i("MEDIA_PATH --->", MEDIA_PATH);
 
             for (File file: fileList) {
 
-                Log.e("Audio list ------>", file.toString());
+
                 if(file.isDirectory()){
-                    Log.e("Audio list ------>", file.toString());
+
                     scanFiles(file);
                 }else{
                     String path = file.getAbsolutePath();
-                    Log.e("Audio list ------>",path);
+
                     if(path.endsWith(".mp3")){
                         Log.e("Audio list ------>", path);
                         songs.add(path);
@@ -50,17 +49,13 @@ public class FileReader {
             File mainFile = new File(MEDIA_PATH);
             File[] fileList = mainFile.listFiles();
 
-            Log.i("MEDIA_PATH --->", MEDIA_PATH);
-
             for (File file: fileList) {
 
-                Log.e("Audio list ------>", file.toString());
                 if(file.isDirectory()){
-                    Log.e("Audio list ------>", file.toString());
+
                     scanFiles(file);
                 }else{
                     String path = file.getAbsolutePath();
-                    Log.e("Audio list ------>",path);
                     if(path.endsWith(".mp3")){
                         Log.e("Audio list ------>", path);
                         songs.add(path);
@@ -78,7 +73,6 @@ public class FileReader {
 
             for (File file: fileList) {
 
-                Log.e("Audio list ------>", file.toString());
                 if(file.isDirectory()){
                     scanFiles(directory);
                 }else{
@@ -87,6 +81,7 @@ public class FileReader {
                     if(path.endsWith(".mp3")){
                         Log.e("Audio list ------>", path);
                         songs.add(path);
+
                     }
                 }
             }

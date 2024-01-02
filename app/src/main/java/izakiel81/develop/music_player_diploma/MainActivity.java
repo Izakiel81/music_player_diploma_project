@@ -31,6 +31,8 @@ public class MainActivity extends AppCompatActivity {
 
     private final static String MEDIA_PATH = Environment.getExternalStorageDirectory().getPath() + "/";
 
+    private MusicAdapter adapter;
+
     private ArrayList<String> songs = new ArrayList<>();
 
     @Override
@@ -43,53 +45,47 @@ public class MainActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recyclerViewSongs);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-
-
-
         /* Перевірка на наявність доступу до файлової системи користувача.
 
             * Якщо доступу немає, додаток надсилає запит на отримання доступу користувачу
             * Якщо доступ є, додаток збирає всі аудіо файли
 
         */
-
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if(ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_MEDIA_AUDIO)
-                    != PackageManager.PERMISSION_GRANTED)
-
-                {
+                    != PackageManager.PERMISSION_GRANTED){
 
                     ActivityCompat.requestPermissions(MainActivity.this,
                             new String[]{Manifest.permission.READ_MEDIA_AUDIO},
                             1);
 
-                }else
-                {
+                }else{
                     fileReaderAPI33 = new FileReaderAPI33(MainActivity.this);
                     songs = fileReaderAPI33.getAllFiles();
+                    adapter = new MusicAdapter(songs, MainActivity.this);
+
+                    recyclerView.setAdapter(adapter);
                 }
 
         }
-       else
-       {
+       else {
            if(ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED)
-        {
+                != PackageManager.PERMISSION_GRANTED){
                 ActivityCompat.requestPermissions(MainActivity.this,
                         new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
                         1);
-        }else
-        {
+        }else{
             fileReader = new FileReader(MainActivity.this);
             songs = fileReader.getAllSongs();
+
+            adapter = new MusicAdapter(songs, MainActivity.this);
+
+            recyclerView.setAdapter(adapter);
         }
 
     }
+
 }
-
-
-
 
     // Метод, що перевіряє результат запиту на отримання доступу до файлової системи користувача
     // Якщо користувач надав доступ до файлової системи, додаток збирає всі аудіо файли
