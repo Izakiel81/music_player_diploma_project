@@ -17,13 +17,11 @@ import android.util.Log;
 import java.util.ArrayList;
 
 import izakiel81.develop.music_player_diploma.file_readers.FileReader;
-import izakiel81.develop.music_player_diploma.file_readers.FileReaderAPIBelow33;
 
 public class MainActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
     private FileReader fileReader;
-    private FileReaderAPIBelow33 fileReaderAPIBelow33;
 
     private final static String MEDIA_PATH = Environment.getExternalStorageDirectory().getPath() + "/";
 
@@ -71,8 +69,8 @@ public class MainActivity extends AppCompatActivity {
                         new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
                         1);
         }else{
-               fileReaderAPIBelow33 = new FileReaderAPIBelow33(MainActivity.this);
-               songs = fileReaderAPIBelow33.getAllAudioFiles();
+               fileReader = new FileReader(MainActivity.this);
+               songs = fileReader.getAllFiles();
                adapter = new MusicAdapter(songs, MainActivity.this);
 
                recyclerView.setAdapter(adapter);
@@ -89,11 +87,7 @@ public class MainActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         if(requestCode == 1 && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
                 songs = fileReader.getAllFiles();
-            }else{
-                songs = fileReaderAPIBelow33.getAllAudioFiles();
-            }
         }
     }
 }
