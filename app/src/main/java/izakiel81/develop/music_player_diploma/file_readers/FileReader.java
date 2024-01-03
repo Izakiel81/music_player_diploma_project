@@ -1,100 +1,40 @@
 package izakiel81.develop.music_player_diploma.file_readers;
 
-import android.content.Context;
-import android.os.Environment;
-import android.util.Log;
 
-import java.io.File;
+import android.content.Context;
+
+import android.database.Cursor;
+import android.provider.MediaStore;
+
+
 import java.util.ArrayList;
 
 public class FileReader {
     private final Context context;
-    private ArrayList<String> songs = new ArrayList<>();
-
-    private final static String MEDIA_PATH = Environment.getExternalStorageDirectory().getPath()+"/";
 
     public FileReader(Context context) {
         this.context = context;
     }
 
-    private void getAllAudioFilesFromDownload(){
-        if(MEDIA_PATH.endsWith("/Download")){
-            File mainFile = new File(MEDIA_PATH);
-            File[] fileList = mainFile.listFiles();
+    public ArrayList<String> getAllFiles(){
+        ArrayList<String> audioLists = new ArrayList<>();
 
+        String[] strings = {MediaStore.Audio.Media._ID, MediaStore.Audio.Media.DISPLAY_NAME};// Can include more data for more details and check it.
 
-            for (File file: fileList) {
+        Cursor cursor = context.getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, strings, null, null, null);
 
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                do {
+                    int audioIndex = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DISPLAY_NAME);
 
-                if(file.isDirectory()){
-
-                    scanFiles(file);
-                }else{
-                    String path = file.getAbsolutePath();
-
-                    if(path.endsWith(".mp3")){
-                        Log.e("Audio list ------>", path);
-                        songs.add(path);
-                    }
-                }
+                    audioLists.add(cursor.getString(audioIndex));
+                } while (cursor.moveToNext());
             }
-
         }
+        cursor.close();
 
+        return audioLists;
     }
-
-
-    private void getAllAudioFilesFromMusic(){
-        if(MEDIA_PATH.endsWith("/Music")){
-            File mainFile = new File(MEDIA_PATH);
-            File[] fileList = mainFile.listFiles();
-
-            for (File file: fileList) {
-
-                if(file.isDirectory()){
-
-                    scanFiles(file);
-                }else{
-                    String path = file.getAbsolutePath();
-                    if(path.endsWith(".mp3")){
-                        Log.e("Audio list ------>", path);
-                        songs.add(path);
-                    }
-                }
-            }
-
-        }
-
-    }
-
-    private void scanFiles(File directory){
-        if(directory != null){
-            File[] fileList = directory.listFiles();
-
-            for (File file: fileList) {
-
-                if(file.isDirectory()){
-                    scanFiles(directory);
-                }else{
-
-                    String path = file.getAbsolutePath();
-                    if(path.endsWith(".mp3")){
-                        Log.e("Audio list ------>", path);
-                        songs.add(path);
-
-                    }
-                }
-            }
-
-        }
-
-    }
-
-    public ArrayList<String> getAllSongs(){
-        getAllAudioFilesFromDownload();
-        getAllAudioFilesFromMusic();
-        return songs;
-    }
-
 
 }

@@ -1,7 +1,6 @@
 package izakiel81.develop.music_player_diploma;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -10,24 +9,21 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.MediaStore;
 import android.util.Log;
 
-import java.io.File;
 import java.util.ArrayList;
 
 import izakiel81.develop.music_player_diploma.file_readers.FileReader;
-import izakiel81.develop.music_player_diploma.file_readers.FileReaderAPI33;
+import izakiel81.develop.music_player_diploma.file_readers.FileReaderAPIBelow33;
 
 public class MainActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
-    private FileReaderAPI33 fileReaderAPI33;
     private FileReader fileReader;
+    private FileReaderAPIBelow33 fileReaderAPIBelow33;
 
     private final static String MEDIA_PATH = Environment.getExternalStorageDirectory().getPath() + "/";
 
@@ -60,8 +56,8 @@ public class MainActivity extends AppCompatActivity {
                             1);
 
                 }else{
-                    fileReaderAPI33 = new FileReaderAPI33(MainActivity.this);
-                    songs = fileReaderAPI33.getAllFiles();
+                    fileReader = new FileReader(MainActivity.this);
+                    songs = fileReader.getAllFiles();
                     adapter = new MusicAdapter(songs, MainActivity.this);
 
                     recyclerView.setAdapter(adapter);
@@ -75,13 +71,12 @@ public class MainActivity extends AppCompatActivity {
                         new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
                         1);
         }else{
-            fileReader = new FileReader(MainActivity.this);
-            songs = fileReader.getAllSongs();
+               fileReaderAPIBelow33 = new FileReaderAPIBelow33(MainActivity.this);
+               songs = fileReaderAPIBelow33.getAllAudioFiles();
+               adapter = new MusicAdapter(songs, MainActivity.this);
 
-            adapter = new MusicAdapter(songs, MainActivity.this);
-
-            recyclerView.setAdapter(adapter);
-        }
+               recyclerView.setAdapter(adapter);
+           }
 
     }
 
@@ -95,9 +90,9 @@ public class MainActivity extends AppCompatActivity {
 
         if(requestCode == 1 && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
-                songs = fileReaderAPI33.getAllFiles();
+                songs = fileReader.getAllFiles();
             }else{
-                songs = fileReader.getAllSongs();
+                songs = fileReaderAPIBelow33.getAllAudioFiles();
             }
         }
     }
