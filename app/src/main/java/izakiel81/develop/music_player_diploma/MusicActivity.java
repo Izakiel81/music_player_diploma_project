@@ -1,5 +1,6 @@
 package izakiel81.develop.music_player_diploma;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.media.MediaPlayer;
@@ -35,6 +36,7 @@ public class MusicActivity extends AppCompatActivity {
 
 
 
+
         buttonPreviousSong = findViewById(R.id.buttonPreviousSong);
         buttonPauseSong = findViewById(R.id.buttonPauseSong);
         buttonNextSong = findViewById(R.id.buttonNextSong);
@@ -60,7 +62,7 @@ public class MusicActivity extends AppCompatActivity {
 
         mediaPlayer = new MediaPlayer();
 
-        mediaPlayer.reset();
+
         try {
 
             mediaPlayer.setDataSource(path);
@@ -70,6 +72,17 @@ public class MusicActivity extends AppCompatActivity {
             throw new RuntimeException(e);
         }
 
+        OnBackPressedCallback onBackPressedCallback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if(mediaPlayer != null) {
+                    mediaPlayer.release();
+                    mediaPlayer = null;
+                }
+            }
+        };
+
+        MusicActivity.this.getOnBackPressedDispatcher().addCallback(this, onBackPressedCallback);
 
         buttonPreviousSong.setOnClickListener(v -> {
             mediaPlayer.reset();
@@ -226,5 +239,7 @@ public class MusicActivity extends AppCompatActivity {
         }
 
     }
+
+
 
 }
