@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Handler;
 import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -16,12 +17,13 @@ public class MusicActivity extends AppCompatActivity {
     private Button buttonPreviousSong, buttonNextSong, buttonPauseSong;
     private TextView textViewFileNameMusic, textViewProgressStart, textViewProgressEnd;
     private SeekBar seekBarVolume, seekBarMusic;
-
     private String title, path;
     private int position;
     private ArrayList<String> list;
-
     private MediaPlayer mediaPlayer;
+    private Runnable runnable;
+    private Handler handler;
+    private int totalTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,30 +99,116 @@ public class MusicActivity extends AppCompatActivity {
         });
 
         buttonNextSong.setOnClickListener(v -> {
-            mediaPlayer.reset();
-            if(position == list.size() - 1)
-            {
-                position = 0;
-            }else{
-                position++;
-            }
-
-            String pathPrevious = list.get(position);
-
-            try {
-                mediaPlayer.setDataSource(pathPrevious);
-                mediaPlayer.prepare();
-                mediaPlayer.start();
-
-                buttonPauseSong.setBackgroundResource(R.drawable.pause);
-
-                String title = pathPrevious.substring(pathPrevious.lastIndexOf("/") + 1);
-                textViewFileNameMusic.setText(title);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-
+            playNext();
         });
 
+        seekBarVolume.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if(fromUser){
+                    seekBarVolume.setProgress(progress);
+                    float volume = seekBarVolume.getProgress() / 100f;
+                    mediaPlayer.setVolume(volume, volume);
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
+        seekBarMusic.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if(fromUser){
+                    mediaPlayer.seekTo(progress);
+                    seekBarMusic.setProgress(progress);
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
+        handler = new Handler();
+        runnable = new Runnable() {
+            @Override
+            public void run() {
+                totalTime = mediaPlayer.getDuration();
+                seekBarMusic.setMax(totalTime);
+
+                int currentPosition = mediaPlayer.getCurrentPosition();
+                seekBarMusic.setProgress(currentPosition);
+                handler.postDelayed(runnable, 1000);
+
+                String currentTime = createTimeLabel(currentPosition);
+                String songDurationTime = createTimeLabel(totalTime);
+
+                textViewProgressStart.setText(currentTime);
+                textViewProgressEnd.setText(songDurationTime);
+
+               if(currentTime.equals(songDurationTime)){
+                  playNext();
+               }
+            }
+        };
+
+        handler.post(runnable);
     }
+
+    private String createTimeLabel(int currentPosition){
+
+        String timeLabel;
+        int minute, second;
+
+        minute = currentPosition / 1000 / 60;
+        second = currentPosition / 1000 % 60;
+
+        if(second < 10){
+            timeLabel = minute + ":0" + second;
+        }else{
+            timeLabel = minute + ":" + second;
+        }
+        return timeLabel;
+    }
+
+    private void playNext(){
+        mediaPlayer.reset();
+        if(position == list.size() - 1)
+        {
+            position = 0;
+        }else{
+            position++;
+        }
+
+        String pathPrevious = list.get(position);
+
+        try {
+            mediaPlayer.setDataSource(pathPrevious);
+            mediaPlayer.prepare();
+            mediaPlayer.start();
+
+            buttonPauseSong.setBackgroundResource(R.drawable.pause);
+
+            String title = pathPrevious.substring(pathPrevious.lastIndexOf("/") + 1);
+            textViewFileNameMusic.setText(title);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
 }
