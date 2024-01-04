@@ -60,10 +60,10 @@ public class MusicAdapter extends RecyclerView.Adapter<MusicAdapter.MusicViewHol
         return list.size();
     }
 
-    public class MusicViewHolder extends RecyclerView.ViewHolder {
+    public static class MusicViewHolder extends RecyclerView.ViewHolder {
 
-        private TextView textViewFileName;
-        private CardView cardView;
+        private final TextView textViewFileName;
+        private final CardView cardView;
 
         public MusicViewHolder(@NonNull View itemView) {
             super(itemView);

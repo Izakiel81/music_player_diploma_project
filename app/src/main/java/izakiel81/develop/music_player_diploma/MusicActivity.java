@@ -5,6 +5,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -24,11 +26,14 @@ public class MusicActivity extends AppCompatActivity {
     private Runnable runnable;
     private Handler handler;
     private int totalTime;
+    private Animation animation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_music);
+
+
 
         buttonPreviousSong = findViewById(R.id.buttonPreviousSong);
         buttonPauseSong = findViewById(R.id.buttonPauseSong);
@@ -41,6 +46,9 @@ public class MusicActivity extends AppCompatActivity {
         seekBarVolume = findViewById(R.id.seekBarVolume);
         seekBarMusic = findViewById(R.id.seekBarMusic);
 
+        animation = AnimationUtils.loadAnimation(MusicActivity.this, R.anim.translate_name_animation);
+        textViewFileNameMusic.setAnimation(animation);
+
         title = getIntent().getStringExtra("title");
         path = getIntent().getStringExtra("path");
 
@@ -52,7 +60,9 @@ public class MusicActivity extends AppCompatActivity {
 
         mediaPlayer = new MediaPlayer();
 
+        mediaPlayer.reset();
         try {
+
             mediaPlayer.setDataSource(path);
             mediaPlayer.prepare();
             mediaPlayer.start();
@@ -81,6 +91,9 @@ public class MusicActivity extends AppCompatActivity {
 
                 String title = pathPrevious.substring(pathPrevious.lastIndexOf("/") + 1);
                 textViewFileNameMusic.setText(title);
+
+                textViewFileNameMusic.clearAnimation();
+                textViewFileNameMusic.setAnimation(animation);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -205,6 +218,9 @@ public class MusicActivity extends AppCompatActivity {
 
             String title = pathPrevious.substring(pathPrevious.lastIndexOf("/") + 1);
             textViewFileNameMusic.setText(title);
+
+            textViewFileNameMusic.clearAnimation();
+            textViewFileNameMusic.setAnimation(animation);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
