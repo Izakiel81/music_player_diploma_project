@@ -1,6 +1,7 @@
 package izakiel81.develop.music_player_diploma;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,7 +36,23 @@ public class MusicAdapter extends RecyclerView.Adapter<MusicAdapter.MusicViewHol
 
     @Override
     public void onBindViewHolder(@NonNull MusicViewHolder holder, int position) {
-        holder.textViewFileName.setText(list.get(position));
+        String path = list.get(position);
+        final String title = path.substring(path.lastIndexOf("/") + 1);
+        holder.textViewFileName.setText(title);
+        holder.cardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(mContext, MusicActivity.class);
+
+                intent.putExtra("title", title);
+                intent.putExtra("path", path);
+                intent.putExtra("position", position);
+                intent.putExtra("list", list);
+
+                mContext.startActivity(intent);
+
+            }
+        });
     }
 
     @Override
