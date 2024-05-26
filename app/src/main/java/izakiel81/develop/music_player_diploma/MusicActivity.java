@@ -6,16 +6,21 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
 public class MusicActivity extends AppCompatActivity {
+
+    private static final String TAG = "MusicActivity";
 
     private Button buttonPreviousSong, buttonNextSong, buttonPauseSong;
     private TextView textViewFileNameMusic, textViewProgressStart, textViewProgressEnd;
@@ -26,16 +31,12 @@ public class MusicActivity extends AppCompatActivity {
     private MediaPlayer mediaPlayer;
     private Runnable runnable;
     private Handler handler;
-    private int totalTime;
     private Animation animation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_music);
-
-
-
 
         buttonPreviousSong = findViewById(R.id.buttonPreviousSong);
         buttonPauseSong = findViewById(R.id.buttonPauseSong);
@@ -53,193 +54,173 @@ public class MusicActivity extends AppCompatActivity {
 
         title = getIntent().getStringExtra("title");
         path = getIntent().getStringExtra("path");
-
         position = getIntent().getIntExtra("position", 0);
-
         list = getIntent().getStringArrayListExtra("list");
 
         textViewFileNameMusic.setText(title);
 
         mediaPlayer = new MediaPlayer();
+        handler = new Handler();
 
-
-        try {
-
-            mediaPlayer.setDataSource(path);
-            mediaPlayer.prepare();
-            mediaPlayer.start();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        setupMediaPlayer(path);
 
         OnBackPressedCallback onBackPressedCallback = new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                if(mediaPlayer != null) {
-                    mediaPlayer.release();
-                    mediaPlayer = null;
-                }
+                releaseMediaPlayer();
+                finish();
             }
         };
 
         MusicActivity.this.getOnBackPressedDispatcher().addCallback(this, onBackPressedCallback);
 
-        buttonPreviousSong.setOnClickListener(v -> {
-            mediaPlayer.reset();
-            if(position == 0)
-            {
-                position = list.size() - 1;
-            }else{
-                position--;
-            }
-
-            String pathPrevious = list.get(position);
-
-            try {
-                mediaPlayer.setDataSource(pathPrevious);
-                mediaPlayer.prepare();
-                mediaPlayer.start();
-
-                buttonPauseSong.setBackgroundResource(R.drawable.pause);
-
-                String title = pathPrevious.substring(pathPrevious.lastIndexOf("/") + 1);
-                textViewFileNameMusic.setText(title);
-
-                textViewFileNameMusic.clearAnimation();
-                textViewFileNameMusic.setAnimation(animation);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-
-        });
-
-        buttonPauseSong.setOnClickListener(v -> {
-
-            if(mediaPlayer.isPlaying()){
-                mediaPlayer.pause();
-                buttonPauseSong.setBackgroundResource(R.drawable.play);
-            }else{
-                mediaPlayer.start();
-                buttonPauseSong.setBackgroundResource(R.drawable.pause);
-            }
-        });
-
-        buttonNextSong.setOnClickListener(v -> {
-            playNext();
-        });
+        buttonPreviousSong.setOnClickListener(v -> playPrevious());
+        buttonPauseSong.setOnClickListener(v -> togglePlayPause());
+        buttonNextSong.setOnClickListener(v -> playNext());
 
         seekBarVolume.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if(fromUser){
-                    seekBarVolume.setProgress(progress);
-                    float volume = seekBarVolume.getProgress() / 100f;
+                if (fromUser) {
+                    float volume = progress / 100f;
                     mediaPlayer.setVolume(volume, volume);
                 }
             }
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-
             }
         });
 
         seekBarMusic.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if(fromUser){
+                if (fromUser) {
                     mediaPlayer.seekTo(progress);
-                    seekBarMusic.setProgress(progress);
                 }
             }
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-
             }
         });
 
-        handler = new Handler();
         runnable = new Runnable() {
             @Override
             public void run() {
-                totalTime = mediaPlayer.getDuration();
-                seekBarMusic.setMax(totalTime);
+                if (mediaPlayer != null) {
+                    int currentPosition = mediaPlayer.getCurrentPosition();
+                    seekBarMusic.setProgress(currentPosition);
 
-                int currentPosition = mediaPlayer.getCurrentPosition();
-                seekBarMusic.setProgress(currentPosition);
-                handler.postDelayed(runnable, 1000);
+                    textViewProgressStart.setText(createTimeLabel(currentPosition));
+                    textViewProgressEnd.setText(createTimeLabel(mediaPlayer.getDuration()));
 
-                String currentTime = createTimeLabel(currentPosition);
-                String songDurationTime = createTimeLabel(totalTime);
+                    handler.postDelayed(this, 1000);
 
-                textViewProgressStart.setText(currentTime);
-                textViewProgressEnd.setText(songDurationTime);
-
-               if(currentTime.equals(songDurationTime)){
-                  playNext();
-               }
+                    if (!mediaPlayer.isPlaying() && currentPosition >= mediaPlayer.getDuration() - 100) {
+                        playNext();
+                    }
+                }
             }
         };
 
         handler.post(runnable);
     }
 
-    private String createTimeLabel(int currentPosition){
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        releaseMediaPlayer();
+    }
 
+    private void releaseMediaPlayer() {
+        if (mediaPlayer != null) {
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
+        handler.removeCallbacks(runnable);
+    }
+
+    private void togglePlayPause() {
+        if (mediaPlayer.isPlaying()) {
+            mediaPlayer.pause();
+            buttonPauseSong.setBackgroundResource(R.drawable.play);
+        } else {
+            mediaPlayer.start();
+            buttonPauseSong.setBackgroundResource(R.drawable.pause);
+        }
+    }
+
+    private void playPrevious() {
+        mediaPlayer.reset();
+        if (position == 0) {
+            position = list.size() - 1;
+        } else {
+            position--;
+        }
+        playSongAtPosition(position);
+    }
+
+    private void playNext() {
+        mediaPlayer.reset();
+        if (position == list.size() - 1) {
+            position = 0;
+        } else {
+            position++;
+        }
+        playSongAtPosition(position);
+    }
+
+    private void playSongAtPosition(int position) {
+        String pathNext = list.get(position);
+        setupMediaPlayer(pathNext);
+    }
+
+    private void setupMediaPlayer(String path) {
+        File file = new File(path);
+        if (file.exists()) {
+            try {
+                Log.d(TAG, "Setting data source to: " + path);
+                mediaPlayer.setDataSource(path);
+                mediaPlayer.prepare();
+                mediaPlayer.start();
+                seekBarMusic.setMax(mediaPlayer.getDuration());
+
+                buttonPauseSong.setBackgroundResource(R.drawable.pause);
+
+                String titleNext = path.substring(path.lastIndexOf("/") + 1);
+                textViewFileNameMusic.setText(titleNext);
+                textViewFileNameMusic.clearAnimation();
+                textViewFileNameMusic.setAnimation(animation);
+            } catch (IOException e) {
+                e.printStackTrace();
+                Toast.makeText(this, "Error playing the song", Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "Error setting up media player", e);
+            }
+        } else {
+            Toast.makeText(this, "File not found: " + path, Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "File not found: " + path);
+        }
+    }
+
+    private String createTimeLabel(int time) {
         String timeLabel;
-        int minute, second;
+        int minute = time / 1000 / 60;
+        int second = time / 1000 % 60;
 
-        minute = currentPosition / 1000 / 60;
-        second = currentPosition / 1000 % 60;
-
-        if(second < 10){
+        if (second < 10) {
             timeLabel = minute + ":0" + second;
-        }else{
+        } else {
             timeLabel = minute + ":" + second;
         }
         return timeLabel;
     }
-
-    private void playNext(){
-        mediaPlayer.reset();
-        if(position == list.size() - 1)
-        {
-            position = 0;
-        }else{
-            position++;
-        }
-
-        String pathPrevious = list.get(position);
-
-        try {
-            mediaPlayer.setDataSource(pathPrevious);
-            mediaPlayer.prepare();
-            mediaPlayer.start();
-
-            buttonPauseSong.setBackgroundResource(R.drawable.pause);
-
-            String title = pathPrevious.substring(pathPrevious.lastIndexOf("/") + 1);
-            textViewFileNameMusic.setText(title);
-
-            textViewFileNameMusic.clearAnimation();
-            textViewFileNameMusic.setAnimation(animation);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-    }
-
-
-
 }
