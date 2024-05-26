@@ -4,51 +4,43 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#071013"
+    android:backgroundTint="#071013"
     android:orientation="vertical"
     tools:context=".MusicActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="10dp">
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal">
 
         <ImageView
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:src="@drawable/volume_down"
             android:layout_marginStart="5dp"
-            />
+            android:src="@drawable/volume_down" />
 
         <SeekBar
             android:id="@+id/seekBarVolume"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:max="100"
-            android:progress="50"
             android:layout_gravity="center"
             android:layout_weight="1"
-            />
+            android:foregroundTint="#fff"
+            android:max="100"
+            android:progress="50"
+            android:progressBackgroundTint="#fff"
+            android:progressTint="@android:color/holo_orange_light"
+            android:thumbTint="#FFEFBF" />
 
         <ImageView
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:src="@drawable/volume_up"
             android:layout_marginEnd="5dp"
-            />
+            android:src="@drawable/volume_up" />
 
     </LinearLayout>
-
-    <TextView
-        android:id="@+id/textViewFileNameMusic"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginTop="20dp"
-        android:maxLines="1"
-        android:text="MP3 file name placeholder"
-        android:textAlignment="viewStart"
-        android:textSize="20sp" />
 
     <ImageView
         android:layout_width="306dp"
@@ -56,6 +48,15 @@
         android:layout_gravity="center"
         android:layout_marginTop="50dp"
         android:src="@drawable/note" />
+
+    <TextView
+        android:id="@+id/textViewFileNameMusic"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="sample"
+        android:textAlignment="center"
+        android:textColor="#FCEFEF"
+        android:textSize="20sp" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -66,8 +67,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:progressBackgroundTint="#fff"
+            android:progressTint="@android:color/holo_orange_light"
+            android:thumbTint="#FFEFBF"
             app:layout_constraintBottom_toTopOf="@+id/linearLayout2"
+
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent" />
 
         <LinearLayout
@@ -87,7 +93,7 @@
                 android:layout_marginEnd="19dp"
                 android:layout_weight="1"
                 android:text="0:00"
-                android:textColor="@color/black"
+                android:textColor="@android:color/holo_orange_light"
                 android:textSize="16sp" />
 
             <TextView
@@ -99,7 +105,7 @@
                 android:layout_weight="1"
                 android:text="0:00"
                 android:textAlignment="textEnd"
-                android:textColor="@color/black"
+                android:textColor="@android:color/holo_orange_light"
                 android:textSize="16sp" />
         </LinearLayout>
 
@@ -117,30 +123,43 @@
 
             <Button
                 android:id="@+id/buttonPreviousSong"
-                style="@style/Widget.AppCompat.Button.Colored"
-                android:layout_width="70dp"
-                android:layout_height="70dp"
-                android:background="@drawable/previous"
+                style="@style/Widget.AppCompat.Button"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:background="@drawable/round_btn"
+                android:stateListAnimator="@anim/translate_name_animation"
                 android:textColor="@color/black"
-                app:backgroundTint="@color/black" />
+                app:backgroundTint="@android:color/holo_orange_light"
+                app:icon="@drawable/previous"
+
+                app:iconGravity="textStart"
+                app:iconPadding="1dp"
+                app:iconSize="30dp"
+                app:iconTint="#091E28" />
 
             <Button
                 android:id="@+id/buttonPauseSong"
-                style="@style/Widget.AppCompat.Button.Colored"
+                style="@style/Widget.AppCompat.Button"
                 android:layout_width="wrap_content"
                 android:layout_height="100dp"
                 android:background="@drawable/pause"
                 android:textColor="@color/black"
-                app:backgroundTint="@color/black" />
+                app:backgroundTint="@android:color/holo_orange_light" />
 
             <Button
                 android:id="@+id/buttonNextSong"
                 style="@style/Widget.AppCompat.Button.Colored"
-                android:layout_width="70dp"
-                android:layout_height="70dp"
-                android:background="@drawable/next"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:background="@drawable/round_btn"
                 android:textColor="@color/black"
-                app:backgroundTint="@color/black" />
+                app:backgroundTint="@android:color/holo_orange_light"
+                app:icon="@drawable/next"
+                app:iconGravity="textStart"
+
+                app:iconPadding="1dp"
+                app:iconSize="30dp"
+                app:iconTint="#091E28" />
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
