@@ -11,19 +11,23 @@ public class FileReader {
     private static final String TAG = "FileReader";
     private final Context context;
 
+    // Конструктор приймає контекст застосунку
     public FileReader(Context context) {
         this.context = context;
     }
 
+    // Метод для отримання всіх аудіофайлів з пристрою
     public ArrayList<String> getAllFiles() {
         ArrayList<String> audioLists = new ArrayList<>();
 
+        // Визначаємо, які дані нам потрібні з MediaStore
         String[] projection = {
                 MediaStore.Audio.Media._ID,
                 MediaStore.Audio.Media.DISPLAY_NAME,
                 MediaStore.Audio.Media.DATA
         };
 
+        // Виконуємо запит до MediaStore для отримання аудіофайлів
         try (Cursor cursor = context.getContentResolver().query(
                 MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                 projection,
@@ -31,9 +35,11 @@ public class FileReader {
                 null,
                 null
         )) {
+            // Перевіряємо, чи не повернув запит порожній курсор
             if (cursor != null) {
                 int dataIndex = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA);
 
+                // Перебираємо результати запиту
                 while (cursor.moveToNext()) {
                     String filePath = cursor.getString(dataIndex);
                     Log.d(TAG, "Found audio file: " + filePath);
